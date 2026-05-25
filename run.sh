@@ -18,17 +18,18 @@ if ! command -v dosbox-x &> /dev/null; then
     exit 1
 fi
 
-# Use the base image (contains IBM PC-adapted kernel, boot sector, DOSIO, and utilities).
-# The source-compiled kernel (86-DOS_1.00.img) uses SCP keyboard mappings that differ
-# from the IBM PC adaptation; the base image is the working bootable version.
-IMG="$SCRIPT_DIR/86-DOS_1.00_base.img"
+# Use the source-compiled image if available, otherwise fall back to base
+IMG="$SCRIPT_DIR/86-DOS_1.00.img"
+if [ ! -f "$IMG" ]; then
+    IMG="$SCRIPT_DIR/86-DOS_1.00_base.img"
+fi
 if [ ! -f "$IMG" ]; then
     echo "No disk image found. Run ./build.sh first."
     exit 1
 fi
 
 # Create DOSBox-X config
-CONF=$(mktemp /tmp/dosbox-86dos-XXXXXX.conf)
+CONF=$(mktemp /tmp/dosbox-86dos-XXXXXXXX)
 trap "rm -f $CONF" EXIT
 
 cat > "$CONF" << EOF
@@ -39,7 +40,7 @@ windowresolution=800x600
 [dosbox]
 machine=cga
 memsize=256
-title=86-DOS 1.00 (1981)
+title=86-DOS 1.00 (1981) - Compiled from Source
 
 [cpu]
 core=normal
